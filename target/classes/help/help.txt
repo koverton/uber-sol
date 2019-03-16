@@ -1,0 +1,24 @@
+Ubersol is a Solace management tool that enables executing CLI and SFTP 
+commands across multiple management connections. When you connect to a 
+Solace broker that connection is cached with a name provided by you, 
+so later when you want to execute a command you can name the connection 
+or connections to execute it against, or even use a wildard to execute 
+against multiple connections. Neat, huh?
+
+Help Command Summary
+
+	ubersol> ?
+	- Displays this summary (hello!)
+
+	ubersol> ? connect
+	- Displays connect/disconnect cmd help
+
+	ubersol> ? cli
+	- Displays CLI execution help
+
+	ubersol> ? sftp
+	- Displays SFTP execution help
+
+And if you want to leave, just type:
+
+	ubersol> exit

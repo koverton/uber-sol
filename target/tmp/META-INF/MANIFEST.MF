@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Built-By: koverton
+Created-By: Apache Maven 3.3.3
+Build-Jdk: 1.8.0_131
+Main-Class: com.solacesystems.ubersol.interactive.UberCLI
+

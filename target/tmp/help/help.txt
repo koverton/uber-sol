@@ -1,0 +1,14 @@
+Help Command Summary
+
+	?
+	- Displays this summary (hello!)
+
+	? connect
+	- Displays connect/disconnect cmd help
+
+	? cli
+	- Displays CLI execution help
+
+And if you want to leave, just type:
+
+	exit

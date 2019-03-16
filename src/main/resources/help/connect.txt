@@ -1,0 +1,32 @@
+Connection Command Summary
+
+Connect to CLI:
+	ubersol> [name] + <ssh-address> <cli-user>
+	- Creates a new CLI session and names it for future use (you'll be prompted for password)
+
+	EX:
+	ubersol> s01 + solace01.lcs.mit.edu kovadmin
+
+
+Disconnect:
+	ubersol> [name] -
+	- Disconnects a named shell and removes it from the available shells
+
+	EX:
+	ubersol> s01 -
+
+
+List all connections:
+	ubersol> ls
+	- Displays a list of all cached connections
+
+	EX:
+	ubersol> ls
+		Showing all connections ...
+		CLI> [ local=>localhost:2222, aws=>54.90.102.251:2222 ]
+		SFTP> [ lftp=>localhost:2222 ]
+
+
+And if you want to leave, just type:
+
+	ubersol> exit

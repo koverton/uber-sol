@@ -1,0 +1,34 @@
+SFTP Execution Summary
+
+Download Files
+
+The `<` command downloads files from SFTP sessions:
+
+	ubersol> [name] < <remote-path> <local-path>
+	- Downloads file(s) according to the remote-path and stores them according to the local-path
+
+	EX:
+	ubersol> dev* < logs/command*.log dev/cmd-logs/
+
+
+Upload Files
+
+The `>` command uploads files to SFTP sessions:
+
+	ubersol> [name] > <remote-path> <local-path>
+	- Uploads file(s) according to the local-path and stores them according to the remote-path
+
+	EX:
+	ubersol> dev* > soltr_7.0.0.1078.tar.gz loads/
+
+
+List Files
+	ubersol> [name] ls <remote-path>
+	- Lists files in the SFTP server according to the remote-path
+
+	EX:
+	ubersol> dev* ls logs/command*.log
+
+And of course, if you want to leave, just type:
+
+	ubersol> exit
