@@ -25,7 +25,7 @@ public class CLIExecutorTest {
         System.out.println("");
     }
 
-    @Test
+    @Ignore
     public void ConnectTest() {
         String hostname = "localhost";
         CLIExecutor cliExecutor = getCLI();
@@ -43,7 +43,7 @@ public class CLIExecutorTest {
             assertEquals(hostname, entry.getKey());
     }
 
-    @Test
+    @Ignore
     public void showHostnameTest() {
         String hostname = "localhost";
         CLIExecutor cliExecutor = getCLI();
@@ -59,7 +59,7 @@ public class CLIExecutorTest {
     }
 
 
-    @Test
+    @Ignore
     public void executeCommentTest() {
         String hostname = "localhost";
         CLIExecutor cliExecutor = getCLI();

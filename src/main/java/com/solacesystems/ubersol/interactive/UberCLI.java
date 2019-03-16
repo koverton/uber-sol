@@ -13,7 +13,7 @@ import static java.lang.System.out;
  * handles input parsing and output presentation, using a {@link com.solacesystems.ubersol.CLIExecutor} instance
  * to actually execute commands over the sessions.
  */
-class UberCLI {
+public class UberCLI {
     static final String NAME = "ubersol";
 
     /**
@@ -29,7 +29,7 @@ class UberCLI {
     /**
      * Constructs the main instance including {@link Parser} and {@link com.solacesystems.ubersol.CLIExecutor} instances.
      */
-    private UberCLI() {
+    public UberCLI() {
         parser = new CmdParser();
         cliexec = new CLIExecutorImpl(NAME);
         sftpexec= new SftpExecutorImpl();
@@ -39,7 +39,7 @@ class UberCLI {
      * Drives the main event loop for interaction with user via stdin/stdout. This will block until the
      * user terminates the session via the {@code exit} command.
      */
-    private void run() {
+    public void run() {
         Cmd cmd;
 
         prompt();
@@ -60,7 +60,7 @@ class UberCLI {
     /**
      * Provides cleanup logic for all contained resources. Will close and destroy all live SSH sessions.
      */
-    private void  shutdown() {
+    public void  shutdown() {
         cliexec.disconnect("*");
         sftpexec.disconnect("*");
     }

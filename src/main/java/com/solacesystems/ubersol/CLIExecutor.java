@@ -2,22 +2,21 @@ package com.solacesystems.ubersol;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * Provides creation and caching of SFTP connections to various Solace appliances
+ * <p>Provides creation and caching of SFTP connections to various Solace appliances
  * and methods to execute ftp commands on those sessions.
  *
- * Typically, one would use this tool as part of scripting rollouts across multiple appliances at a time.
+ * <p>Typically, one would use this tool as part of scripting rollouts across multiple appliances at a time.
  *
- * All methods EXCEPT the connect() method take a 'glob-expression' of connections
+ * <p>All methods EXCEPT the connect() method take a 'glob-expression' of connections
  * the command is expected to execute over. For example, if the SftpExecutor currently has
  * 3 sessions open with names { fred, sally, sherman }, then the following upload cmd will be
  * executed on { sally, sherman } due to glob-matching:
  *
- * {@code put("s*", "soltr_7.0.0.1078.tar.gz", "loads/");}
+ * <p>{@code put("s*", "soltr_7.0.0.1078.tar.gz", "loads/");}
  *
- * NOTE: this is glob-matching, NOT regex matching.
+ * <p>NOTE: this is glob-matching, NOT regex matching.
  */
 public interface CLIExecutor {
 
