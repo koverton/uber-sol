@@ -48,6 +48,8 @@ public interface CLIExecutor {
      */
     List<String> listSessions();
 
+    Map<String, Response> listContext(String connExpr);
+
     /**
      * Executes an ad hoc Solace CLI command on all session with names connExpr matches via globbing.
      *

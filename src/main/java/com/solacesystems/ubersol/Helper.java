@@ -38,7 +38,7 @@ class Helper {
      * Reads CLI session output the splits the output from the prompt value, returning both in a string array
      * in the order [ response, prompt ].
      * @param reader InputReader connected to an SSH session on a Solace appliance
-     * @return 2-member String array containing response text in one string followed by the prompt string
+     * @return 2-member String array containing the prompt string followed by the response lines all in one string
      * @throws IOException failure attempting to read the response stream.
      */
     static String[] readResponse(InputStreamReader reader) throws IOException {
@@ -111,7 +111,7 @@ class Helper {
             len = reader.read(buf, 0, 1024);
             if (len > 0) {
                 response.append(buf, 0, len);
-                done = hasPrompt(response);
+                done = hasPrompt(response) | requiresInput(response.toString());
             }
             else if (len < 0) {
                 // TODO: Socket closed! Now what!?
@@ -125,9 +125,12 @@ class Helper {
         return response.toString();
     }
 
-    private static boolean hasPrompt(StringBuffer sb) {
+    static boolean hasPrompt(StringBuffer sb) {
         int len = sb.length();
         return len>2 && (sb.charAt(len-2)=='>' || sb.charAt(len-2)=='#') && sb.charAt(len-1)==' ';
     }
 
+    static boolean requiresInput(String response) {
+        return response.trim().contains("(y/n)?");
+    }
 }

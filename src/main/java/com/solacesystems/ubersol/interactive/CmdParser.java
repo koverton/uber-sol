@@ -36,13 +36,11 @@ class CmdParser implements Parser {
         if (words.size() == 0)
             return null;
 
+        Matcher matcher = new Matcher(words);
         // One word answers
-        String arg0 = words.get(0);
-        // Exit request
-        if (arg0.toLowerCase().matches("^exit$"))
+        if (matcher.isExit())
             return new Cmd(OP.Exit, "");
-        // Help Requests
-        if (arg0.toLowerCase().equals("help") || arg0.equals("?")) {
+        if (matcher.isHelp()) {
             if (words.size() == 1)
                 return new HelpCmd(name, HelpMsg.TOP_LEVEL);
             if (words.get(1).matches("^co.*"))
@@ -54,69 +52,52 @@ class CmdParser implements Parser {
             else
                 return new HelpCmd(name, HelpMsg.TOP_LEVEL);
         }
-        if (arg0.toLowerCase().equals("ls")) {
-            // Show connections
+        if (matcher.isShowConnections()) {
             return new ShowConnsCmd(name);
         }
-        // No such thing
+        // No other one-word answers, so the rest are parser errors
         if (words.size() == 1)
-            return parseError();
+            return new ErrorCmd(name, HelpMsg.USAGE);
 
-        String arg1 = words.get(1);
-
-        // Connect a new CLI session
-        if (arg1.charAt(0) == '+') {
-            if (words.size() < 4)
-                return parseError();
-            return new ConnectCmd(arg0, words.get(2), words.get(3), false);
-        }
-        // Connect a new SFTP session
-        else if (arg1.charAt(0) == '*') {
-            if (words.size() < 4)
-                return parseError();
-            return new ConnectCmd(arg0, words.get(2), words.get(3), true);
-        }
-        // Disconnect named session(s)
-        if (arg1.charAt(0) == '-') {
-            return new Cmd(OP.Disconnect, arg0);
-        }
-        // Execute a local script on remote sessions
-        if (arg1.charAt(0) == '!') {
-            if (words.size() < 3)
-                return parseError();
-            String arg2 = words.get(2);
-            File file = new File(arg2);
-            if (!file.exists() || !file.canRead()) {
-                return new ErrorCmd(arg2, "Script file does not exist or is not readable. Please check the file and try again.");
+        // Everything below has at least 2 arguments
+        String arg0 = words.get(0);
+        try {
+            if (matcher.isConnect()) {
+                return new ConnectCmd(arg0, words.get(2), words.get(3), false);
             }
-            return new RunScriptCmd(arg0, arg2);
+            else if (matcher.isSftpConnect()) {
+                return new ConnectCmd(arg0, words.get(2), words.get(3), true);
+            }
+            if (matcher.isDisconnect()) {
+                return new Cmd(OP.Disconnect, arg0);
+            }
+            if (matcher.isCLIExec()) {
+                String arg2 = words.get(2);
+                File file = new File(arg2);
+                if (!file.exists() || !file.canRead()) {
+                    return new ErrorCmd(arg2, "Script file does not exist or is not readable. Please check the file and try again.");
+                }
+                return new RunScriptCmd(arg0, arg2);
+            }
+            if (matcher.isSftpGet()) {
+                return SftpCmd.GET(arg0, words.get(2), words.get(3));
+            }
+            if (matcher.isSftpPut()) {
+                return SftpCmd.PUT(arg0, words.get(2), words.get(3));
+            }
+            if (matcher.isSftpShow()) {
+                return SftpCmd.SHOW(arg0, join(words.subList(2, words.size())));
+            }
+            if (matcher.isCLIContext()) {
+                return new ContextCmd(arg0);
+            }
         }
-        // SFTP GET
-        if (arg1.charAt(0) == '<') {
-            if (words.size() < 4)
-                return new ErrorCmd(name, "SFTP GET cmd missing an arg (try '? sftp')");
-            return SftpCmd.GET(arg0, words.get(2), words.get(3));
-        }
-        // SFTP PUT
-        if (arg1.charAt(0) == '>') {
-            if (words.size() < 4)
-                return new ErrorCmd(name, "SFTP PUT cmd missing an arg (try '? sftp')");
-            return SftpCmd.PUT(arg0, words.get(2), words.get(3));
-        }
-        // SFTP SHOW
-        if (arg1.equals("ls")) {
-            words.remove(0);
-            words.remove(0);
-            return SftpCmd.SHOW(arg0, join(words));
+        catch(IllegalArgumentException e) {
+            return new ErrorCmd(name, e.getMessage());
         }
 
         // Assume the rest are Solace CLI commands (and let solace complain if they aren't)
-        words.remove(0);
-        return new ExecCmd(arg0, join(words));
-    }
-
-    private ErrorCmd parseError() {
-        return new ErrorCmd(name, HelpMsg.USAGE);
+        return new ExecCmd(arg0, join(words.subList(1, words.size())));
     }
 
     private String readLine() throws IOException {

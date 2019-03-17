@@ -6,6 +6,7 @@ enum OP {
     SFTPConnect,
     Disconnect,
     ShowConns,
+    ShowContext,
     // CLI types
     ExecCLI,
     RunCLIScript,

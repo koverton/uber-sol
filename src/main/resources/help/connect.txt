@@ -27,6 +27,25 @@ List all connections:
 		SFTP> [ lftp=>localhost:2222 ]
 
 
+List CLI session context:
+
+The `context` command displays operational context for CLI sessions.
+
+Because you can be in multiple sessions, `ubersol` tends to hide the operational
+context of each session as expressed in their CLI prompt. To see the current
+context of any session use the `context` command.
+
+    ubersol> [name] context
+    - Displays CLI context for each matching session
+
+    EX:
+    ubersol> * context
+        Showing CLI context for '*'...
+        ubersol> * context
+            Showing CLI context for '*'...
+            dkr> xenakis(configure/hardware/message-spool)#
+
+
 And if you want to leave, just type:
 
 	ubersol> exit

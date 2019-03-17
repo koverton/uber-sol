@@ -89,7 +89,7 @@ public class UberCLI {
                         sftpexec.connect(dest, sftpConnect.getIpAndPort(), sftpConnect.getUser(), password));
                 break;
             case Disconnect:
-                showProgress("(Disconnecting from "+dest+"...)");
+                showProgress("Disconnecting from "+dest+"...");
                 results = cliexec.disconnect(dest);
                 results.putAll( sftpexec.disconnect(dest) );
                 break;
@@ -101,14 +101,18 @@ public class UberCLI {
                 results.put("\tSFTP", new Response(true,
                         "[ "+String.join(", ", sftpexec.listSessions())+" ]", dest));
                 break;
+            case ShowContext:
+                showProgress("Showing CLI context for '" + dest + "'...");
+                results = cliexec.listContext(dest);
+                break;
             case ExecCLI:
                 ExecCmd execCmd = (ExecCmd) cmd;
-                showProgress("(Executing CLI on sessions matching '"+dest+"'...)");
+                showProgress("Executing CLI on sessions matching '"+dest+"'...");
                 results = cliexec.execute(dest, execCmd.getCmd());
                 break;
             case RunCLIScript:
                 RunScriptCmd scriptCmd = (RunScriptCmd) cmd;
-                showProgress("(Executing CLI script " + scriptCmd.getScriptName() + " on " + dest + "...)");
+                showProgress("Executing CLI script " + scriptCmd.getScriptName() + " on " + dest + "...");
                 results = cliexec.executeScript(dest, scriptCmd.getScriptName());
                 break;
             case SftpGet:

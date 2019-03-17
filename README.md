@@ -71,6 +71,23 @@ The `ls` command lists all cached CLI and SFTP connections:
 		SFTP> [ lftp=>localhost:2222 ]
 
 
+### List CLI session context:
+
+The `context` command displays operational context for CLI sessions.
+
+Because you can be in multiple sessions, `ubersol` tends to hide the operational 
+context of each session as expressed in their CLI prompt. To see the current 
+context of any session use the `context` command.
+
+	ubersol> [name] context
+	- Displays CLI context for each matching session
+    
+	EX:
+	ubersol> * context
+    		Showing CLI context for '*'...
+        	dkr> xenakis(configure/hardware/message-spool)#
+
+
 ### Exiting the shell:
 
 And if you want to leave, just type:
@@ -82,7 +99,7 @@ And if you want to leave, just type:
 
 ### Run Command
 	ubersol> [name] [Command ...]
-	- Issues a Solace CLI command on a named session
+	- Issues a Solace CLI command on each matching session
 
 	EX:
 	ubersol> s01 show ip vrf msg-backbone
@@ -90,6 +107,10 @@ And if you want to leave, just type:
 	ubersol> s*  show ip vrf msg-backbone
 
 ### Run Script
+NOTE: Because local file lines are executed en masse against sessions, 
+we execute in *no prompt mode*, where all Y/N warning prompts auto-reply 
+in the affirmative.
+
 	ubersol> [name] ! [Script Filename]
 	- Reads a local CLI script and executes it in the named shell(s) line by line
 

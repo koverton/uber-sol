@@ -17,10 +17,11 @@ public class CLIExecutorImpl implements CLIExecutor {
         Channel channel;
         InputStreamReader reader;
         OutputStreamWriter writer;
+        String lastPrompt;
     }
 
     public CLIExecutorImpl(final String name) {
-        lastPrompt = name;
+        prompt = name;
         jsch = new JSch();
         sessionMap = new HashMap<>();
     }
@@ -31,6 +32,7 @@ public class CLIExecutorImpl implements CLIExecutor {
             int port = Helper.getPort(ipAndPort);
             String host = Helper.getHost(ipAndPort);
             SessionState state = new SessionState();
+            state.lastPrompt = prompt;
             try {
                 state.session = jsch.getSession(user, host, port);
                 // Turn off all host-checks for now
@@ -45,23 +47,23 @@ public class CLIExecutorImpl implements CLIExecutor {
                 state.channel.connect(3000);
                 sessionMap.put(connectionName, state);
                 String[] output = Helper.readResponse(state.reader);
-                lastPrompt = output[0];
+                state.lastPrompt = output[0];
                 // Turn off paging always(!)
                 Response resp = executeOne(connectionName, "no paging");
                 return new Response(true, output[1]+"\n", resp.getPrompt());
             }
             catch(JSchException jex) {
                 String msg = "CLIConnect failed: " + jex.getMessage();
-                return new Response(false, msg, lastPrompt);
+                return new Response(false, msg, state.lastPrompt);
             }
             catch(IOException ioex) {
-                return new Response(false, ioex.getMessage()+"\n", lastPrompt);
+                return new Response(false, ioex.getMessage()+"\n", state.lastPrompt);
             }
             catch(Throwable t) {
-                return new Response(false, "Unknown exception thrown: "+t.getMessage()+"\n", lastPrompt);
+                return new Response(false, "Unknown exception thrown: "+t.getMessage()+"\n", state.lastPrompt);
             }
         }
-        return new Response(false, "Unknown state: connection probably failed\n", lastPrompt);
+        return new Response(false, "Unknown state: connection probably failed\n", prompt);
     }
 
     @Override
@@ -91,7 +93,7 @@ public class CLIExecutorImpl implements CLIExecutor {
             status = false;
         }
         sessionMap.remove(connectionName);
-        return new Response(status, msg+"\n", lastPrompt);
+        return new Response(status, msg+"\n", st.lastPrompt);
     }
 
     @Override
@@ -99,7 +101,18 @@ public class CLIExecutorImpl implements CLIExecutor {
         Map<String, Response> result = new HashMap<>();
         List<String> matches = Helper.glob(sessionMap.keySet(), connExpr);
         for(String connectionName : matches) {
-            result.put(connectionName, executeOne(connectionName, command));
+            Response response = executeOne(connectionName, command);
+            if (Helper.requiresInput(response.getOutput())) {
+                // Force 'y' response
+                Response yresp = executeOne(connectionName, "y");
+                // append this response to the last response
+                String newOutput = response.getOutput() +yresp.getOutput();
+                result.put(connectionName,
+                        new Response(yresp.isSuccess(), newOutput, yresp.getPrompt()));
+            }
+            else {
+                result.put(connectionName, response);
+            }
         }
         if (result.size() < 1)
             result.put(connExpr, new Response(false, "No sessions matched '"+connExpr+"'", connExpr));
@@ -109,15 +122,16 @@ public class CLIExecutorImpl implements CLIExecutor {
     private Response executeOne(String connectionName, String command) {
         SessionState st = sessionMap.get(connectionName);
         try {
-            st.writer.write(command + "\n");
+            st.writer.write(command);
+            st.writer.write("\n");
             st.writer.flush();
             String[] input = Helper.readResponse(st.reader);
-            lastPrompt = input[0];
-            return new Response(true, input[1]+"\n", lastPrompt);
+            st.lastPrompt = input[0];
+            return new Response(true, input[1]+"\n", st.lastPrompt);
         }
         catch(IOException ioex) {
             ioex.printStackTrace();
-            return new Response(false, ioex.getMessage()+"\n", lastPrompt);
+            return new Response(false, ioex.getMessage()+"\n", st.lastPrompt);
         }
     }
 
@@ -135,6 +149,7 @@ public class CLIExecutorImpl implements CLIExecutor {
         boolean status = true;
         StringBuilder response = null;
         BufferedReader br = null;
+        String lastPrompt = prompt;
 
         try {
             response = new StringBuilder();
@@ -189,7 +204,17 @@ public class CLIExecutorImpl implements CLIExecutor {
         return result;
     }
 
+    @Override
+    public Map<String, Response> listContext(String connExpr) {
+        Map<String, Response> result = new HashMap<>();
+        for(String connectionName : Helper.glob(sessionMap.keySet(), connExpr)) {
+            SessionState st = sessionMap.get(connectionName);
+            result.put(connectionName, new Response(true, st.lastPrompt, st.lastPrompt));
+        }
+        return result;
+    }
+
     private final JSch jsch;
     private final Map<String, SessionState> sessionMap;
-    private String lastPrompt;
+    private final String prompt;
 }
